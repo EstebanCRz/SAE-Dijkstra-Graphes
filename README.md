@@ -1,4 +1,4 @@
-# projet
+# projet java
 Projet de période D
 
 Notre groupe se compose de:  
