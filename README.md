@@ -1,6 +1,9 @@
 # projet
 Projet de période D
 
-Notre group se compose de:  
+Notre groupe se compose de:  
 CARDAILLAC RODRIGUEZ Esteban  
 SATOURI Mehdi
+HASSOUN Fadi
+
+Groupe 105
