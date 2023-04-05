@@ -94,16 +94,4 @@ public class GrapheLArcs implements IGraphe {
 		// TODO Auto-generated method stub		
 	}
 	
-	public static void main(String[] args) {
-		Arc a1 = new Arc("A","B",5);
-		Arc a2 = new Arc("A","C",5);
-		Arc a3 = new Arc("D","B",5);
-		List<Arc> l = new ArrayList<>();
-		l.add(a1);
-		l.add(a3);
-		l.add(a2);
-		GrapheLArcs g = new GrapheLArcs(l);
-		System.out.println(g.getSommets());
-		System.out.println(g.getSucc("A"));
-	}
 }
