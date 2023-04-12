@@ -73,8 +73,14 @@ public class GrapheLArcs implements IGraphe {
 	}
 
 	@Override
-	public void ajouterArc(String source, String destination, Integer valeur) {
-		// TODO Auto-generated method stub
+	public void ajouterArc(String source, String destination, Integer valeur){
+		if(this.contientArc(source, destination)) {
+			throw new IllegalArgumentException("L'arc existe déjà");
+		}
+		else {
+			Arc a = new Arc(source, destination, valeur);
+			arcs.add(a);
+		}
 	}
 
 	@Override
@@ -91,7 +97,17 @@ public class GrapheLArcs implements IGraphe {
 
 	@Override
 	public void oterArc(String source, String destination) {
-		// TODO Auto-generated method stub		
+		if(!this.contientArc(source, destination)) {
+			throw new IllegalArgumentException("L'arc n'existe pas");
+		}
+		else {
+			for(Arc a: arcs) {
+				if(a.getSource() == source && a.getDestination() == destination) {
+					arcs.remove(a);
+					break;
+				}
+			}
+		}
 	}
 	
 }
