@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 public class GrapheLArcs implements IGraphe {
 	private List<Arc> arcs;
+	private static final int ARC_NULL = 0;
 	
 	public GrapheLArcs (List<Arc> a) {
 		this.arcs = a;
@@ -68,7 +69,7 @@ public class GrapheLArcs implements IGraphe {
 	@Override
 	public void ajouterSommet(String noeud) {
 		if(!this.contientSommet(noeud)) {
-			arcs.add(new Arc(noeud, "", 0));
+			arcs.add(new Arc(noeud, "", ARC_NULL));
 		}
 	}
 

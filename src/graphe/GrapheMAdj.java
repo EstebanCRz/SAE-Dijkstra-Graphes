@@ -1,68 +1,116 @@
 package graphe;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class GrapheMAdj implements IGraphe{
 	private int[][] matrice;
 	private Map<String, Integer> indices;
+	private static final int NOT_ARC = -1; //indique qu'il n'y a pas d'arc entre les deux sommets
 	
-	public GrapheMAdj() {
-		
+	public GrapheMAdj(int nbSommets) {
+		for(int i = 0; i < nbSommets; ++i) {
+			for(int j = 0; i < nbSommets; ++j) {
+				matrice[i][j] = -1;
+			}
+		}
+		String lettre = "A";
+		for(int i = 0; i < nbSommets; ++i) {
+			indices.put(lettre, i);
+			lettre += 1;
+		}
 	}
 	
 	@Override
 	public List<String> getSommets() {
-		// TODO Auto-generated method stub
-		return null;
+		List<String> sommets = new ArrayList<>();
+		for( Map.Entry<String, Integer> map: indices.entrySet()) {
+			String sommet = map.getKey();
+			sommets.add(sommet);
+		}
+		return sommets;
 	}
 	
 	@Override
 	public List<String> getSucc(String sommet) {
-		// TODO Auto-generated method stub
-		return null;
+		int ind = indices.get(sommet);
+		List<String> succ = new ArrayList<>();
+		for(String key : indices.keySet()) {
+			int i = indices.get(key);
+			if(matrice[ind][i] != NOT_ARC) {
+				succ.add(key);
+			}
+		}
+		return succ;
 	}
 	
 	@Override
 	public int getValuation(String src, String dest) {
-		// TODO Auto-generated method stub
-		return 0;
+		int indS = indices.get(src);
+		int indDest = indices.get(dest);
+		return matrice[indS][indDest];
 	}
 	
 	@Override
 	public boolean contientSommet(String sommet) {
-		// TODO Auto-generated method stub
-		return false;
+		return indices.containsKey(sommet);
 	}
 	
 	@Override
 	public boolean contientArc(String src, String dest) {
-		// TODO Auto-generated method stub
-		return false;
+		int indS = indices.get(src);
+		int indDest = indices.get(dest);
+		if(matrice[indS][indDest] != NOT_ARC)
+			return true;
+		else
+			return false;
 	}
 	
 	@Override
 	public void ajouterSommet(String noeud) {
-		// TODO Auto-generated method stub
-		
+		if(!this.contientSommet(noeud)) {
+			for(int i = 0; i < indices.size(); ++i) {
+				matrice[indices.size()][i] = NOT_ARC;
+			}
+			indices.put(noeud, indices.size());
+		}
 	}
 	
 	@Override
 	public void ajouterArc(String source, String destination, Integer valeur) {
-		// TODO Auto-generated method stub
-		
+		int indS = indices.get(source);
+		int indDest = indices.get(destination);
+		if(matrice[indS][indDest] != NOT_ARC) {
+			throw new IllegalArgumentException("L'arc existe déjà");
+		}
+		else {
+			matrice[indS][indDest] = valeur;
+		}
 	}
 	
 	@Override
 	public void oterSommet(String noeud) {
-		// TODO Auto-generated method stub
-		
+		if(this.contientSommet(noeud)) {
+			int ind = indices.get(noeud);
+			int taille = indices.size();
+			for(int i = 0; i < taille ; ++i) {
+				
+			}
+			indices.remove(noeud);
+		}
 	}
 	
 	@Override
 	public void oterArc(String source, String destination) {
-		// TODO Auto-generated method stub
-		
+		int indS = indices.get(source);
+		int indDest = indices.get(destination);
+		if(matrice[indS][indDest] == NOT_ARC) {
+			throw new IllegalArgumentException("L'arc n'existe pas");
+		}
+		else {
+			matrice[indS][indDest] = NOT_ARC;
+		}
 	}
 	
 	
