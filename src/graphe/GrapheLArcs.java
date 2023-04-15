@@ -8,27 +8,31 @@ public class GrapheLArcs implements IGraphe {
 	private List<Arc> arcs;
 	private static final int ARC_NULL = 0;
 	
-	public GrapheLArcs (List<Arc> a) {
-		this.arcs = a;
+	public GrapheLArcs () {
+		arcs = new ArrayList<>();
 	}
 
 	@Override
 	public List<String> getSommets() {
 		List<String> sommets = new ArrayList<String>();
-		for(Arc s: arcs) {
-			sommets.add(s.getSource());
-			sommets.add(s.getDestination());
+		if (!arcs.isEmpty()) {
+			for(Arc s: arcs) {
+				sommets.add(s.getSource());
+				sommets.add(s.getDestination());
+			}
+			sommets = sommets.stream().distinct().collect(Collectors.toList()); // retire les doublons de la liste	
 		}
-		sommets = sommets.stream().distinct().collect(Collectors.toList()); // retire les doublons de la liste
 		return sommets;
 	}
 
 	@Override
 	public List<String> getSucc(String sommet) {
 		List<String> succ = new ArrayList<>();
-		for(Arc a: arcs) {
-			if (a.getSource() == sommet) {
-				succ.add(a.getDestination());
+		if(!arcs.isEmpty()) {
+			for(Arc a: arcs) {
+				if (a.getSource() == sommet) {
+					succ.add(a.getDestination());
+				}
 			}
 		}
 		return succ;

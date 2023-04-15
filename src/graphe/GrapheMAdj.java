@@ -41,7 +41,7 @@ public class GrapheMAdj implements IGraphe{
 	public List<String> getSucc(String sommet) {
 		int ind = indices.get(sommet);
 		List<String> succ = new ArrayList<>();
-		for(String key : indices.keySet()) {
+		for(String key : indices.keySet()) { // pour chaque key, vérifie si dans la matrice il y a un arc entre sommet et la key
 			int i = indices.get(key);
 			if(matrice[ind][i] != NOT_ARC) {
 				succ.add(key);
@@ -52,9 +52,7 @@ public class GrapheMAdj implements IGraphe{
 	
 	@Override
 	public int getValuation(String src, String dest) {
-		int indS = indices.get(src);
-		int indDest = indices.get(dest);
-		return matrice[indS][indDest];
+		return matrice[indices.get(src)][indices.get(dest)];
 	}
 	
 	@Override
@@ -64,9 +62,7 @@ public class GrapheMAdj implements IGraphe{
 	
 	@Override
 	public boolean contientArc(String src, String dest) {
-		int indS = indices.get(src);
-		int indDest = indices.get(dest);
-		if(matrice[indS][indDest] != NOT_ARC)
+		if(matrice[indices.get(src)][indices.get(dest)] != NOT_ARC)
 			return true;
 		else
 			return false;
@@ -74,13 +70,23 @@ public class GrapheMAdj implements IGraphe{
 	
 	@Override
 	public void ajouterSommet(String noeud) {
-		if(!this.contientSommet(noeud)) {
-			for(int i = 0; i < indices.size(); ++i) {
-				matrice[indices.size()][i] = NOT_ARC;
-			}
-			indices.put(noeud, indices.size());
-		}
+	    if (!this.contientSommet(noeud)) {
+	        int[][] nouvelleMatrice = new int[nbSommets + 1][nbSommets + 1];
+	        // Copie des anciennes valeurs dans la nouvelle matrice
+	        for (int i = 0; i < nbSommets; i++) {
+	            System.arraycopy(matrice[i], 0, nouvelleMatrice[i], 0, nbSommets);
+	        }
+	        // Initialisation des nouvelles valeurs de la matrice à 0
+	        for (int i = 0; i <= nbSommets; i++) {
+	            nouvelleMatrice[i][nbSommets] = 0;
+	            nouvelleMatrice[nbSommets][i] = 0;
+	        }
+	        matrice = nouvelleMatrice;
+	        indices.put(noeud, nbSommets);
+	        nbSommets++;
+	    }
 	}
+
 	
 	@Override
 	public void ajouterArc(String source, String destination, Integer valeur) {
@@ -96,40 +102,42 @@ public class GrapheMAdj implements IGraphe{
 	
 	@Override
 	public void oterSommet(String noeud) {
-		if(this.contientSommet(noeud)) {
-			int ind = indices.get(noeud);
-			int taille = indices.size();
-			for (int i = ind; i < taille - 1; i++) {
-	            // Décale les indices de la map pour maintenir la cohérence avec la matrice
-				indices.put(noeud + 1, i);
-	        }
+	    if (contientSommet(noeud)) {
+	        int ind = indices.get(noeud);
+	        int taille = indices.size();
 	        indices.remove(noeud);
-			for (int i = ind; i < taille - 1; i++) { // supprime les lignes où le sommet apparaît
-	            for (int j = 0; j < taille; j++) {
-	                matrice[i][j] = matrice[i+1][j];
-	            }
+	        for (int i = ind; i < taille - 1; i++) {
+	            String s = getKeyFromValue(indices, i+1);
+	            indices.put(s, i);
 	        }
-	        for (int j = ind; j < taille - 1; j++) { // supprime les colonnes où le sommet apparaît
-	            for (int i = 0; i < taille - 1; i++) {
-	                matrice[i][j] = matrice[i][j+1];
-	            }
+	        for (int i = ind; i < taille - 1; i++) {
+	            System.arraycopy(matrice, i+1, matrice, i, taille-i-1);
 	        }
-	        matrice = GrapheMAdj.redimensionnerMatrice(matrice, nbSommets - 1);
-		}
-	}
-	
-	public static int[][] redimensionnerMatrice(int[][] matrice, int nouvelleTaille) {
-	    int[][] newMatrice = new int[nouvelleTaille][nouvelleTaille];
-	    int ancienneTaille = matrice.length;
-	    int limite = Math.min(ancienneTaille, nouvelleTaille);
-	    for (int i = 0; i < limite; i++) {
-	        for (int j = 0; j < limite; j++) {
-	            newMatrice[i][j] = matrice[i][j];
+	        for (int i = 0; i < taille-1; i++) {
+	            System.arraycopy(matrice[i], ind+1, matrice[i], ind, taille-ind-1);
 	        }
+	        --nbSommets;
+	        GrapheMAdj.redimensionnerMatrice(matrice, nbSommets);
 	    }
-	    return newMatrice;
 	}
 
+	private static String getKeyFromValue(Map<String, Integer> map, int value) {
+	    for (Map.Entry<String, Integer> entry : map.entrySet()) {
+	        if (entry.getValue().equals(value)) {
+	            return entry.getKey();
+	        }
+	    }
+	    return null;
+	}
+	
+	private static void redimensionnerMatrice(int[][] matrice, int nouvelleTaille) {
+	    int[][] newMatrice = new int[nouvelleTaille][nouvelleTaille];
+	    int limite = Math.min(nouvelleTaille, matrice.length);
+	    for (int i = 0; i < limite; i++) {
+	        System.arraycopy(matrice[i], 0, newMatrice[i], 0, limite);
+	    }
+	    matrice = newMatrice;
+	}
 	
 	@Override
 	public void oterArc(String source, String destination) {
