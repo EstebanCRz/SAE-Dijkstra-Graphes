@@ -1,6 +1,7 @@
 package graphe;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -9,8 +10,11 @@ public class GrapheMAdj implements IGraphe{
 	private Map<String, Integer> indices;
 	private static final int NOT_ARC = -1; //indique qu'il n'y a pas d'arc entre les deux sommets
 	private String lettre = "A";
+	private int nbSommets;
 	
 	public GrapheMAdj(int nbSommets) {
+		indices = new HashMap<>();
+		this.matrice = new int[nbSommets][nbSommets];
 		for(int i = 0; i < nbSommets; ++i) {
 			for(int j = 0; i < nbSommets; ++j) {
 				matrice[i][j] = -1;
@@ -20,6 +24,7 @@ public class GrapheMAdj implements IGraphe{
 			indices.put(lettre, i);
 			lettre += 1;
 		}
+		this.nbSommets = nbSommets;
 	}
 	
 	@Override
@@ -109,8 +114,22 @@ public class GrapheMAdj implements IGraphe{
 	                matrice[i][j] = matrice[i][j+1];
 	            }
 	        }
+	        matrice = GrapheMAdj.redimensionnerMatrice(matrice, nbSommets - 1);
 		}
 	}
+	
+	public static int[][] redimensionnerMatrice(int[][] matrice, int nouvelleTaille) {
+	    int[][] newMatrice = new int[nouvelleTaille][nouvelleTaille];
+	    int ancienneTaille = matrice.length;
+	    int limite = Math.min(ancienneTaille, nouvelleTaille);
+	    for (int i = 0; i < limite; i++) {
+	        for (int j = 0; j < limite; j++) {
+	            newMatrice[i][j] = matrice[i][j];
+	        }
+	    }
+	    return newMatrice;
+	}
+
 	
 	@Override
 	public void oterArc(String source, String destination) {
