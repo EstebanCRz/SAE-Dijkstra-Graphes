@@ -93,7 +93,8 @@ public class GrapheMAdj implements IGraphe{
 		int indS = indices.get(source);
 		int indDest = indices.get(destination);
 		if(matrice[indS][indDest] != NOT_ARC) {
-			throw new IllegalArgumentException("L'arc existe déjà");
+			throw new IllegalStateException("L'arc existe déjà dans le graphe.");
+			//l'arc existe déjà donc c'est une IllegalStateException et non pas une IllegalArgumentException
 		}
 		else {
 			matrice[indS][indDest] = valeur;
@@ -144,7 +145,8 @@ public class GrapheMAdj implements IGraphe{
 		int indS = indices.get(source);
 		int indDest = indices.get(destination);
 		if(matrice[indS][indDest] == NOT_ARC) {
-			throw new IllegalArgumentException("L'arc n'existe pas");
+			throw new IllegalStateException("L'arc n'existe pas dans le graphe.");
+			//l'arc est déjà absent du graphe donc c'est une IllegalStateException et non pas une IllegalArgumentException
 		}
 		else {
 			matrice[indS][indDest] = NOT_ARC;

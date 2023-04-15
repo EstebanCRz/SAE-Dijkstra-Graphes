@@ -1,67 +1,117 @@
 package graphe;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 public class GrapheLAdj implements IGraphe {
 	private Map<String, List<Arc>> lAdj;
+	private String lettre = "A"; // permet d'initialiser la map
 	
-	public GrapheLAdj(List<Arc> arcs) {
+	public GrapheLAdj(int nbSommets) {
 		lAdj = new HashMap<>();
+		for(int i = 0; i < nbSommets; ++i) {
+			lAdj.put(lettre, new ArrayList<>());
+			lettre += 1;
+		}
 	}
 	
 	@Override
 	public List<String> getSommets() {
-		// TODO Auto-generated method stub
-		return null;
+		List<String> sommets = new ArrayList<>();
+		for( Entry<String, List<Arc>> map: lAdj.entrySet()) {
+			String sommet = map.getKey();
+			sommets.add(sommet);
+		}
+		return sommets;
 	}
 
 	@Override
 	public List<String> getSucc(String sommet) {
-		// TODO Auto-generated method stub
-		return null;
+	    List<String> succ = new ArrayList<>();
+	    if (contientSommet(sommet)) {
+	        List<Arc> arcs = lAdj.get(sommet);
+	        for (Arc arc : arcs) {
+	            succ.add(arc.getDestination());
+	        }
+	    }
+	    return succ;
 	}
+
 
 	@Override
 	public int getValuation(String src, String dest) {
-		// TODO Auto-generated method stub
-		return 0;
+		List<Arc> arcs = lAdj.get(src);
+        for (Arc arc : arcs) {
+            if (arc.getDestination().equals(dest)) {
+                return arc.getValuation();
+            }
+        }
+		return -1;
 	}
 
 	@Override
 	public boolean contientSommet(String sommet) {
-		// TODO Auto-generated method stub
-		return false;
+		return lAdj.containsKey(sommet);
 	}
 
 	@Override
 	public boolean contientArc(String src, String dest) {
-		// TODO Auto-generated method stub
+		List<Arc> arcs = lAdj.get(src);
+        for (Arc arc : arcs) {
+        	if (arc.getSource() == src && arc.getDestination() == dest)
+        		return true;
+        }
 		return false;
 	}
 
 	@Override
 	public void ajouterSommet(String noeud) {
-		// TODO Auto-generated method stub
-		
+		lAdj.put(noeud, new ArrayList<Arc>());
+		ajouterArc(noeud, "", 0);
 	}
 
 	@Override
 	public void ajouterArc(String source, String destination, Integer valeur) {
-		// TODO Auto-generated method stub
-		
+		if(contientArc(source, destination))
+			throw new IllegalStateException("L'arc existe déjà dans le graphe."); 
+			//l'arc existe déjà donc c'est une IllegalStateException et non pas une IllegalArgumentException
+		else {
+			lAdj.get(source).add(new Arc(source, destination, valeur));
+		}
 	}
 
 	@Override
 	public void oterSommet(String noeud) {
-		// TODO Auto-generated method stub
-		
+	    if (contientSommet(noeud)) {
+	        List<Arc> arcs = lAdj.get(noeud);
+	        for (Arc arc : arcs) {
+	            String dest = arc.getDestination();
+	            List<Arc> arcsSortants = lAdj.get(dest);
+	            if (dest.equals(noeud)) {
+	                arcsSortants.remove(arc);
+	            }
+	        }
+	        lAdj.remove(noeud);
+	    }
 	}
 
 	@Override
 	public void oterArc(String source, String destination) {
-		// TODO Auto-generated method stub
-		
+	    if (!contientSommet(source))
+	    	throw new IllegalStateException("L'arc n'existe pas dans le graphe.");
+	    	//l'arc est déjà absent du graphe donc c'est une IllegalStateException et non pas une IllegalArgumentException
+	    else {
+		    List<Arc> arcs = lAdj.get(source);
+	        for (Arc arc : arcs) {
+	            if (arc.getDestination().equals(destination)) {
+	                arcs.remove(arc);
+	                return;
+	            }
+	        }
+	    }
 	}
+
 }
