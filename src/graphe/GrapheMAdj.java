@@ -8,6 +8,7 @@ public class GrapheMAdj implements IGraphe{
 	private int[][] matrice;
 	private Map<String, Integer> indices;
 	private static final int NOT_ARC = -1; //indique qu'il n'y a pas d'arc entre les deux sommets
+	private String lettre = "A";
 	
 	public GrapheMAdj(int nbSommets) {
 		for(int i = 0; i < nbSommets; ++i) {
@@ -15,7 +16,6 @@ public class GrapheMAdj implements IGraphe{
 				matrice[i][j] = -1;
 			}
 		}
-		String lettre = "A";
 		for(int i = 0; i < nbSommets; ++i) {
 			indices.put(lettre, i);
 			lettre += 1;
@@ -94,10 +94,21 @@ public class GrapheMAdj implements IGraphe{
 		if(this.contientSommet(noeud)) {
 			int ind = indices.get(noeud);
 			int taille = indices.size();
-			for(int i = 0; i < taille ; ++i) {
-				
-			}
-			indices.remove(noeud);
+			for (int i = ind; i < taille - 1; i++) {
+	            // Décale les indices de la map pour maintenir la cohérence avec la matrice
+				indices.put(noeud + 1, i);
+	        }
+	        indices.remove(noeud);
+			for (int i = ind; i < taille - 1; i++) { // supprime les lignes où le sommet apparaît
+	            for (int j = 0; j < taille; j++) {
+	                matrice[i][j] = matrice[i+1][j];
+	            }
+	        }
+	        for (int j = ind; j < taille - 1; j++) { // supprime les colonnes où le sommet apparaît
+	            for (int i = 0; i < taille - 1; i++) {
+	                matrice[i][j] = matrice[i][j+1];
+	            }
+	        }
 		}
 	}
 	
