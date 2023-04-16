@@ -10,10 +10,27 @@ public class GrapheLAdj implements IGraphe {
 	private Map<String, List<Arc>> lAdj;
 	private String lettre = "A"; // permet d'initialiser la map
 	
+	// permet de construire un graphe sans arc
 	public GrapheLAdj(int nbSommets) {
 		lAdj = new HashMap<>();
 		for(int i = 0; i < nbSommets; ++i) {
 			lAdj.put(lettre, new ArrayList<>());
+			lettre += 1;
+		}
+	}
+	
+	// permet de construire un graphe avec des arcs déjà renseignés
+	public GrapheLAdj(int nbSommets, List<Arc> arcs) {
+		lAdj = new HashMap<>();
+		for(int i = 0; i < nbSommets; ++i) {
+			lAdj.put(lettre, new ArrayList<>());
+			List<Arc> SArcs = new ArrayList<>(); // contiendra tous les arcs partant du sommet en cours d'étude
+			for (Arc arc: arcs) {
+				if (arc.getSource() == lettre)
+					SArcs.add(arc);
+			}
+			if(!SArcs.isEmpty())
+				lAdj.put(lettre, SArcs);
 			lettre += 1;
 		}
 	}

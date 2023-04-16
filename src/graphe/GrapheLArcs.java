@@ -8,8 +8,15 @@ public class GrapheLArcs implements IGraphe {
 	private List<Arc> arcs;
 	private static final int ARC_NULL = 0;
 	
+	// permet de construire un graphe sans arc
 	public GrapheLArcs () {
 		arcs = new ArrayList<>();
+	}
+	
+	// permet de construire un graphe avec des arcs déjà renseignés
+	public GrapheLArcs (List<Arc> arc) {
+		arcs = new ArrayList<>();
+		arcs = arc;
 	}
 
 	@Override

@@ -12,6 +12,7 @@ public class GrapheMAdj implements IGraphe{
 	private String lettre = "A";
 	private int nbSommets;
 	
+	// permet de construire un graphe sans arc
 	public GrapheMAdj(int nbSommets) {
 		indices = new HashMap<>();
 		this.matrice = new int[nbSommets][nbSommets];
@@ -25,6 +26,27 @@ public class GrapheMAdj implements IGraphe{
 			lettre += 1;
 		}
 		this.nbSommets = nbSommets;
+	}
+	
+	//permet de construire un graphe avec des arcs déjà renseignés
+	public GrapheMAdj(int nbSommets, List<Arc> arcs) {
+		indices = new HashMap<>();
+		this.matrice = new int[nbSommets][nbSommets];
+		this.nbSommets = nbSommets;
+		for(int i = 0; i < nbSommets; ++i) {
+			for(int j = 0; i < nbSommets; ++j) {
+				for (Arc a: arcs) {
+					if(a.getSource() == getKeyFromValue(indices, i) && a.getDestination() == getKeyFromValue(indices, j))
+						matrice[i][j] = a.getValuation();
+					else
+						matrice[i][j] = -1;
+				}
+			}
+		}
+		for(int i = 0; i < nbSommets; ++i) {
+			indices.put(lettre, i);
+			lettre += 1;
+		}
 	}
 	
 	@Override
