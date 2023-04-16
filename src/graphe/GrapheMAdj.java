@@ -9,32 +9,34 @@ public class GrapheMAdj implements IGraphe{
 	private int[][] matrice;
 	private Map<String, Integer> indices;
 	private static final int NOT_ARC = -1; //indique qu'il n'y a pas d'arc entre les deux sommets
-	private String lettre = "A";
+	private static final String lettre = "A"; // donne le premier sommet lors de la création
 	private int nbSommets;
 	
-	// permet de construire un graphe sans arc
+	// permettra de construire un graphe sans arc de départ
 	public GrapheMAdj(int nbSommets) {
 		indices = new HashMap<>();
+		String lettreDep = lettre;
 		this.matrice = new int[nbSommets][nbSommets];
 		for(int i = 0; i < nbSommets; ++i) {
-			for(int j = 0; i < nbSommets; ++j) {
+			for(int j = 0; j < nbSommets; ++j) {
 				matrice[i][j] = -1;
 			}
 		}
 		for(int i = 0; i < nbSommets; ++i) {
-			indices.put(lettre, i);
-			lettre += 1;
+			indices.put(lettreDep, i);
+			lettreDep += 1;
 		}
 		this.nbSommets = nbSommets;
 	}
 	
-	//permet de construire un graphe avec des arcs déjà renseignés
+	//permettra de construire un graphe avec des arcs déjà renseignés
 	public GrapheMAdj(int nbSommets, List<Arc> arcs) {
 		indices = new HashMap<>();
+		String lettreDep = lettre;
 		this.matrice = new int[nbSommets][nbSommets];
 		this.nbSommets = nbSommets;
 		for(int i = 0; i < nbSommets; ++i) {
-			for(int j = 0; i < nbSommets; ++j) {
+			for(int j = 0; j < nbSommets; ++j) {
 				for (Arc a: arcs) {
 					if(a.getSource() == getKeyFromValue(indices, i) && a.getDestination() == getKeyFromValue(indices, j))
 						matrice[i][j] = a.getValuation();
@@ -44,8 +46,8 @@ public class GrapheMAdj implements IGraphe{
 			}
 		}
 		for(int i = 0; i < nbSommets; ++i) {
-			indices.put(lettre, i);
-			lettre += 1;
+			indices.put(lettreDep, i);
+			lettreDep += 1;
 		}
 	}
 	
@@ -107,20 +109,26 @@ public class GrapheMAdj implements IGraphe{
 	        indices.put(noeud, nbSommets);
 	        nbSommets++;
 	    }
+	    else {
+	    	
+	    }
 	}
 
 	
 	@Override
 	public void ajouterArc(String source, String destination, Integer valeur) {
-		int indS = indices.get(source);
-		int indDest = indices.get(destination);
-		if(matrice[indS][indDest] != NOT_ARC) {
-			throw new IllegalStateException("L'arc existe déjà dans le graphe.");
-			//l'arc existe déjà donc c'est une IllegalStateException et non pas une IllegalArgumentException
+		if(contientSommet(source) && contientSommet(destination)) {
+			int indS = indices.get(source);
+			int indDest = indices.get(destination);
+			if(matrice[indS][indDest] != NOT_ARC) {
+				throw new IllegalStateException("L'arc existe déjà dans le graphe.");
+			}
+			else {
+				matrice[indS][indDest] = valeur;
+			}
 		}
-		else {
-			matrice[indS][indDest] = valeur;
-		}
+		else
+			throw new IllegalArgumentException("Le sommet source ou destination n'existe pas dans le graphe.");
 	}
 	
 	@Override
@@ -142,8 +150,12 @@ public class GrapheMAdj implements IGraphe{
 	        --nbSommets;
 	        GrapheMAdj.redimensionnerMatrice(matrice, nbSommets);
 	    }
+	    else {
+	    	
+	    }
 	}
-
+	
+	// permet de récupérer la clé associée à une valeur dans la map
 	private static String getKeyFromValue(Map<String, Integer> map, int value) {
 	    for (Map.Entry<String, Integer> entry : map.entrySet()) {
 	        if (entry.getValue().equals(value)) {
@@ -164,16 +176,18 @@ public class GrapheMAdj implements IGraphe{
 	
 	@Override
 	public void oterArc(String source, String destination) {
-		int indS = indices.get(source);
-		int indDest = indices.get(destination);
-		if(matrice[indS][indDest] == NOT_ARC) {
-			throw new IllegalStateException("L'arc n'existe pas dans le graphe.");
-			//l'arc est déjà absent du graphe donc c'est une IllegalStateException et non pas une IllegalArgumentException
+		if(contientSommet(source) && contientSommet(destination)) {
+			int indS = indices.get(source);
+			int indDest = indices.get(destination);
+			if(matrice[indS][indDest] == NOT_ARC) {
+				throw new IllegalStateException("L'arc n'existe pas dans le graphe.");
+			}
+			else {
+				matrice[indS][indDest] = NOT_ARC;
+			}
 		}
-		else {
-			matrice[indS][indDest] = NOT_ARC;
-		}
-	}
-	
+		else
+			throw new IllegalArgumentException("Le sommet source ou destination n'existe pas dans le graphe.");
+	}	
 	
 }

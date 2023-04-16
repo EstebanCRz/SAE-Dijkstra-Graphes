@@ -8,12 +8,12 @@ public class GrapheLArcs implements IGraphe {
 	private List<Arc> arcs;
 	private static final int ARC_NULL = 0;
 	
-	// permet de construire un graphe sans arc
+	// permettra de construire un graphe sans arc de départ
 	public GrapheLArcs () {
 		arcs = new ArrayList<>();
 	}
 	
-	// permet de construire un graphe avec des arcs déjà renseignés
+	// permettra de construire un graphe avec des arcs déjà renseignés
 	public GrapheLArcs (List<Arc> arc) {
 		arcs = new ArrayList<>();
 		arcs = arc;
@@ -21,7 +21,7 @@ public class GrapheLArcs implements IGraphe {
 
 	@Override
 	public List<String> getSommets() {
-		List<String> sommets = new ArrayList<String>();
+		List<String> sommets = new ArrayList<>();
 		if (!arcs.isEmpty()) {
 			for(Arc s: arcs) {
 				sommets.add(s.getSource());
@@ -82,45 +82,59 @@ public class GrapheLArcs implements IGraphe {
 		if(!this.contientSommet(noeud)) {
 			arcs.add(new Arc(noeud, "", ARC_NULL));
 		}
+		else {
+			
+		}
 	}
 
 	@Override
 	public void ajouterArc(String source, String destination, Integer valeur){
-		if(this.contientArc(source, destination)) {
-			throw new IllegalStateException("L'arc existe déjà dans le graphe.");
-			//l'arc existe déjà donc c'est une IllegalStateException et non pas une IllegalArgumentException
+		if(contientSommet(source) && contientSommet(destination)) {
+			if(this.contientArc(source, destination)) {
+				throw new IllegalStateException("L'arc existe déjà dans le graphe.");
+			}
+			else {
+				arcs.add(new Arc(source, destination, valeur));
+			}
 		}
-		else {
-			arcs.add(new Arc(source, destination, valeur));
-		}
+		else
+			throw new IllegalArgumentException("Le sommet source ou destination n'existe pas dans le graphe.");
 	}
 
 	@Override
 	public void oterSommet(String noeud) {
-		assert(!arcs.isEmpty());
-		int cpt = 0;
-		for(Arc a: arcs) {
-			if(a.getSource() == noeud || a.getDestination() == noeud) {
-				arcs.remove(cpt);
-			}
-			++cpt;
-		}
+	    if (contientSommet(noeud)) {
+	        List<Arc> arcsASupprimer = new ArrayList<>();
+	        for (Arc a : arcs) {
+	            if (a.getSource().equals(noeud) || a.getDestination().equals(noeud)) {
+	                arcsASupprimer.add(a);
+	            }
+	        }
+	        arcs.removeAll(arcsASupprimer);
+	    } 
+	    else {
+	        
+	    }
 	}
+
 
 	@Override
 	public void oterArc(String source, String destination) {
-		if(!this.contientArc(source, destination)) {
-			throw new IllegalStateException("L'arc n'existe pas dans le graphe.");
-			//l'arc est déjà absent du graphe donc c'est une IllegalStateException et non pas une IllegalArgumentException
-		}
-		else {
-			for(Arc a: arcs) {
-				if(a.getSource() == source && a.getDestination() == destination) {
-					arcs.remove(a);
-					break;
+		if(contientSommet(source) && contientSommet(destination)){
+			if(!this.contientArc(source, destination)) {
+				throw new IllegalStateException("L'arc n'existe pas dans le graphe.");
+			}
+			else {
+				for(Arc a: arcs) {
+					if(a.getSource() == source && a.getDestination() == destination) {
+						arcs.remove(a);
+						break;
+					}
 				}
 			}
 		}
+		else
+			throw new IllegalArgumentException("Le sommet source ou destination n'existe pas dans le graphe.");
 	}
 	
 }
