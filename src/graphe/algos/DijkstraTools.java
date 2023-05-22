@@ -1,15 +1,13 @@
 package graphe.algos;
 
-import graphe.core.IGraphe;
 import graphe.core.IGrapheConst;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import Djikstra.Dijkstra;
-import Djikstra.Djikstra;
+
 
 public class DijkstraTools {
         public static long time(IGrapheConst g, String source,

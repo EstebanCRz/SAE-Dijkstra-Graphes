@@ -1,93 +1,37 @@
 package Djikstra;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
 
 import graphe.core.IGrapheConst;
 
-public class Dijkstra implements IGrapheConst{
+public class Dijkstra {
 	
-	private static String distanceMin(int[] distances, Map<String, Boolean> visite) {
-	    String distance = null;
-	    for (String sommet : visite.keySet()) {
-	    	if (!visite.get(sommet) && (distance == null || distances[Integer.parseInt(sommet)] < distances[Integer.parseInt(distance)])) {
-	    	    distance = sommet;
-	    	}
+	public static void dijkstra(IGrapheConst g, String source, Map<String, Integer> dist, Map<String, String> prev) {
+		for (String sommet : g.getSommets()) {
+	        dist.put(sommet, Integer.MAX_VALUE);
 	    }
-	    return distance;
-	}
+	    dist.put(source, 0);
 
-	public List<String> Dijkstra(Object graphe, String debut, String arrive) {
-	    assert(contientSommet(debut) && contientSommet(arrive));
-	    int nbSommets = getSommets().size();
-	    int[] distances = new int[nbSommets];
-	    HashMap<String, Boolean> visite = new HashMap<>();
-	    String lettreDep = "A";
-	    for (int i = 0; i < nbSommets; ++i) {
-	        visite.put(lettreDep, false);
-	        lettreDep += 1;
-	    }
-	    visite.replace(debut, true);
-	    List<String> chemin = new ArrayList<>();
-	    chemin.add(debut);
+	    // File de priorité pour obtenir le sommet avec la plus petite distance
+	    PriorityQueue<String> queue = new PriorityQueue<>((s1, s2) -> dist.get(s1) - dist.get(s2)); 
+	    queue.offer(source);
 
-	    for (int i = 0; i < nbSommets; ++i) {
-	        String distanceMinimum = distanceMin(distances, visite);
-	        visite.replace(distanceMinimum, true);
+	    while (!queue.isEmpty()) {
+	        String sommetCourant = queue.poll();
 
-	        for (String sommet : visite.keySet()) {
-	            if (!visite.get(sommet) && contientArc(distanceMinimum, sommet)) {
-	                int poidsArc = getValuation(distanceMinimum, sommet);
-	                int distanceActuelle = distances[Integer.parseInt(sommet)];
-	                int nouvelleDistance = distances[Integer.parseInt(distanceMinimum)] + poidsArc;
-	                if (nouvelleDistance < distanceActuelle) {
-	                    distances[Integer.parseInt(sommet)] = nouvelleDistance;
-	                }
+	        // Parcours des voisins du sommet courant
+	        for (String voisin : g.getSucc(sommetCourant)) {
+	            int distance = dist.get(sommetCourant) + g.getValuation(sommetCourant, voisin);
+
+	            // Mise à jour de la distance si une distance plus courte est trouvée
+	            if (distance < dist.get(voisin)) {
+	                dist.put(voisin, distance);
+	                prev.put(voisin, sommetCourant);
+	                queue.offer(voisin);
 	            }
 	        }
-
-	        chemin.add(distanceMinimum);
-
-	        if (distanceMinimum.equals(arrive)) {
-	            break;
-	        }
 	    }
-
-	    int distanceArrive = distances[Integer.parseInt(arrive)];
-	    chemin.add(String.valueOf(distanceArrive));
-	    
-	    return chemin;
 	}
-
-	@Override
-	public List<String> getSommets() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<String> getSucc(String sommet) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public int getValuation(String src, String dest) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public boolean contientSommet(String sommet) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean contientArc(String src, String dest) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+	
 }
