@@ -11,4 +11,6 @@ GrapheLArcs.java
 GrapheLAdj.java
 GrapheHHAdj.java
 
+Les méthodes de ces quatres classes fonctionnent toutes mise à part la méthode toString. Nous n'arrivons pas à afficher correctement les sommets isolés.
+
 Dijkstra passe tous les tests 
