@@ -1,11 +1,13 @@
 package graphe.implems;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import graphe.core.Arc;
 import graphe.core.IGraphe;
@@ -59,7 +61,8 @@ public class GrapheMAdj implements IGraphe{
 		List<String> sommets = new ArrayList<>();
 		for( Map.Entry<String, Integer> map: indices.entrySet()) {
 			String sommet = map.getKey();
-			sommets.add(sommet);
+			if (sommet != "")
+				sommets.add(sommet);
 		}
 		return sommets;
 	}
@@ -74,6 +77,7 @@ public class GrapheMAdj implements IGraphe{
 				succ.add(key);
 			}
 		}
+		succ = succ.stream().distinct().collect(Collectors.toList());
 		return succ;
 	}
 	
@@ -124,14 +128,24 @@ public class GrapheMAdj implements IGraphe{
 			int indS = indices.get(source);
 			int indDest = indices.get(destination);
 			if(matrice[indS][indDest] != NOT_ARC) {
-				throw new IllegalStateException("L'arc existe déjà dans le graphe.");
+				throw new IllegalArgumentException("L'arc existe déjà dans le graphe.");
 			}
+			else if (valeur == -1)
+				throw new IllegalArgumentException("L'arc ne peut pas avoir de valuation négative.");
 			else {
 				matrice[indS][indDest] = valeur;
 			}
 		}
-		else
-			throw new IllegalArgumentException("Le sommet source ou destination n'existe pas dans le graphe.");
+		else {
+			if (valeur == -1) {
+				throw new IllegalArgumentException("L'arc ne peut pas avoir de valuation négative.");
+			}
+			ajouterSommet(source);
+			ajouterSommet(destination);
+			int indS = indices.get(source);
+			int indDest = indices.get(destination);
+			matrice[indS][indDest] = valeur;
+		}			
 	}
 	
 	@Override
@@ -183,7 +197,7 @@ public class GrapheMAdj implements IGraphe{
 			int indS = indices.get(source);
 			int indDest = indices.get(destination);
 			if(matrice[indS][indDest] == NOT_ARC) {
-				throw new IllegalStateException("L'arc n'existe pas dans le graphe.");
+				throw new IllegalArgumentException("L'arc n'existe pas dans le graphe.");
 			}
 			else {
 				matrice[indS][indDest] = NOT_ARC;
@@ -193,4 +207,47 @@ public class GrapheMAdj implements IGraphe{
 			throw new IllegalArgumentException("Le sommet source ou destination n'existe pas dans le graphe.");
 	}	
 	
+	public String toString() {
+	    StringBuilder sb = new StringBuilder();
+
+	    List<String> sommetSortant = getSommets();
+	    Collections.sort(sommetSortant);
+
+	    Set<String> addedArcs = new HashSet<>();
+	    Set<String> positiveVertices = new HashSet<>();
+
+	    for (String src : sommetSortant) {
+	        boolean estIsole = true; // Variable pour vérifier si le sommet est isolé
+	        boolean hasSource = false; // Variable pour vérifier si le sommet a une source
+	        for (String dest : sommetSortant) {
+	            int val = getValuation(src, dest);
+	            if (val != -1) {
+	                String arcString = src + "-" + dest + "(" + val + ")";
+	                sb.append(arcString).append(", ");
+	                addedArcs.add(arcString);
+	                estIsole = false;
+	                if (val > 0) {
+	                    positiveVertices.add(dest);
+	                }
+	                hasSource = true;
+	            }
+	        }
+	        if (estIsole && hasSource) {
+	            sb.append(src).append(":, ");
+	        }
+	    }
+
+	    // Check for isolated vertices without successors and no positive arcs
+	    for (String vertex : sommetSortant) {
+	        if (!positiveVertices.contains(vertex) && !addedArcs.contains(vertex + ":")) {
+	            sb.append(vertex).append(":, ");
+	        }
+	    }
+
+	    if (sb.length() > 0) {
+	        sb.setLength(sb.length() - 2);
+	    }
+	    return sb.toString();
+	}
+
 }

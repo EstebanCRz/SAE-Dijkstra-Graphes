@@ -1,12 +1,14 @@
 package graphe.implems;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import graphe.core.Arc;
 import graphe.core.IGraphe;
@@ -49,7 +51,8 @@ public class GrapheHHAdj implements IGraphe {
 		List<String> sommets = new ArrayList<>();
 		for( Entry<String, Map<String, Integer>> map: hhadj.entrySet()) {
 			String sommet = map.getKey();
-			sommets.add(sommet);
+			if (sommet != "")
+				sommets.add(sommet);
 		}
 		return sommets;
 	}
@@ -60,9 +63,11 @@ public class GrapheHHAdj implements IGraphe {
 	    if (contientSommet(sommet)) {
 	        Map<String, Integer> arcsSortants = hhadj.get(sommet);
 	        for (String successeur : arcsSortants.keySet()) {
-	            successeurs.add(successeur);
+	        	if (successeur != "")
+	        		successeurs.add(successeur);
 	        }
 	    }
+	    successeurs = successeurs.stream().distinct().collect(Collectors.toList());
 	    return successeurs;
 	}
 
@@ -91,6 +96,7 @@ public class GrapheHHAdj implements IGraphe {
 	public void ajouterSommet(String noeud) {
 		if(!contientSommet(noeud)) {
 			hhadj.put(noeud, new HashMap<>());
+			ajouterArc(noeud, "", 0);
 		}
 		else {
 			
@@ -99,14 +105,21 @@ public class GrapheHHAdj implements IGraphe {
 
 	@Override
 	public void ajouterArc(String source, String destination, Integer valeur) {
-		if(contientSommet(source) && contientSommet(destination)) {
+		if(contientSommet(source)) {
 			if(hhadj.get(source).containsKey(destination))
-				throw new IllegalStateException("L'arc existe déjà dans le graphe.");
+				throw new IllegalArgumentException("L'arc existe déjà dans le graphe.");
+			else if (valeur == -1)
+				throw new IllegalArgumentException("L'arc ne peut pas avoir de valuation négative.");
 			else
 				hhadj.get(source).put(destination, valeur);
 		}
-		else
-			throw new IllegalArgumentException("Le sommet source ou destination n'existe pas dans le graphe.");
+		else {
+			if (valeur == -1)
+				throw new IllegalArgumentException("L'arc ne peut pas avoir de valuation négative.");
+			ajouterSommet(source);
+			ajouterSommet(destination);
+			hhadj.get(source).put(destination, valeur);
+		}
 	}
 
 	@Override
@@ -131,10 +144,54 @@ public class GrapheHHAdj implements IGraphe {
 	    	if(hhadj.get(source).containsKey(destination))
 	    		hhadj.get(source).remove(destination);
 	    	else
-	    		throw new IllegalStateException("L'arc n'existe pas dans le graphe.");
+	    		throw new IllegalArgumentException("L'arc n'existe pas dans le graphe.");
 	    } 
 	    else
 	        throw new IllegalArgumentException("Le sommet source ou destination n'existe pas dans le graphe.");
+	}
+	
+	public String toString() {
+	    StringBuilder sb = new StringBuilder();
+	    Set<String> addedArcs = new HashSet<>();
+
+	    List<String> sortedVertices = new ArrayList<>(hhadj.keySet());
+	    Collections.sort(sortedVertices);
+
+	    for (String src : sortedVertices) {
+	        boolean estIsolé = true; // Variable pour vérifier si le sommet est isolé
+	        Map<String, Integer> adj = hhadj.get(src);
+	        if (adj != null) {
+	            for (Map.Entry<String, Integer> entry : adj.entrySet()) {
+	                String dest = entry.getKey();
+	                int val = entry.getValue();
+	                if (val != 0) {
+	                    String arcString = src + "-" + dest + "(" + val + ")";
+	                    if (!addedArcs.contains(arcString)) {
+	                        sb.append(arcString).append(", ");
+	                        addedArcs.add(arcString);
+	                        estIsolé = false;
+	                    }
+	                }
+	            }
+	        }
+	        if (estIsolé && !hasArcWithPositiveValuation(src)) {
+	            sb.append(src).append(":, ");
+	        }
+	    }
+
+	    if (sb.length() > 0) {
+	        sb.setLength(sb.length() - 2);
+	    }
+	    return sb.toString();
+	}
+
+	private boolean hasArcWithPositiveValuation(String source) {
+	    for (Map<String, Integer> adj : hhadj.values()) {
+	        if (adj.containsKey(source) && adj.get(source) > 0) {
+	            return true;
+	        }
+	    }
+	    return false;
 	}
 
 }

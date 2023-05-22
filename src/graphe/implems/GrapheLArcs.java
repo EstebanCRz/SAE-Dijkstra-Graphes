@@ -2,7 +2,9 @@ package graphe.implems;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import graphe.core.Arc;
@@ -48,6 +50,7 @@ public class GrapheLArcs implements IGraphe {
 				}
 			}
 		}
+		succ = succ.stream().distinct().collect(Collectors.toList());
 		return succ;
 	}
 
@@ -93,9 +96,9 @@ public class GrapheLArcs implements IGraphe {
 
 	@Override
 	public void ajouterArc(String source, String destination, Integer valeur){
-		if(contientSommet(source) && contientSommet(destination)) {
+		if(contientSommet(source)) {
 			if(this.contientArc(source, destination)) {
-				throw new IllegalStateException("L'arc existe déjà dans le graphe.");
+				throw new IllegalArgumentException("L'arc existe déjà dans le graphe.");
 			}
 			else if(valeur == -1){
 				throw new IllegalArgumentException("L'arc ne peut pas avoir de valuation négative.");
@@ -105,8 +108,14 @@ public class GrapheLArcs implements IGraphe {
 	            arcs.add(new Arc(source, destination, valeur));
 			}
 		}
-		else
-			throw new IllegalArgumentException("Le sommet source ou destination n'existe pas dans le graphe.");
+		else {
+			if(valeur == -1)
+				throw new IllegalArgumentException("L'arc ne peut pas avoir de valuation négative.");
+			ajouterSommet(source);
+			ajouterSommet(destination);
+			arcs.removeIf(a -> a.getSource().equals(source) && a.getValuation() == -1);
+            arcs.add(new Arc(source, destination, valeur));
+		}
 	}
 
 	@Override
@@ -130,7 +139,7 @@ public class GrapheLArcs implements IGraphe {
 	public void oterArc(String source, String destination) {
 		if(contientSommet(source) && contientSommet(destination)){
 			if(!this.contientArc(source, destination)) {
-				throw new IllegalStateException("L'arc n'existe pas dans le graphe.");
+				throw new IllegalArgumentException("L'arc n'existe pas dans le graphe.");
 			}
 			else {
 				for(Arc a: arcs) {
@@ -151,12 +160,43 @@ public class GrapheLArcs implements IGraphe {
 	    List<Arc> arcsTrie = new ArrayList<>(arcs);
 	    arcsTrie.sort(Comparator.comparing(Arc::getSource).thenComparing(Arc::getDestination));
 
+	    Set<String> addedArcs = new HashSet<>();
+	    Set<String> positiveVertices = new HashSet<>();
+
+	    for (Arc a : arcsTrie) {
+	        if (!a.getSource().isEmpty()) {
+	            if (a.getValuation() == 0 && !hasArcWithPositiveValuation(a.getSource())) {
+	                String isolatedVertex = a.getSource() + ":";
+	                if (!addedArcs.contains(isolatedVertex)) {
+	                    sb.append(isolatedVertex).append(", ");
+	                    addedArcs.add(isolatedVertex);
+	                }
+	            } else {
+	                if (!a.getDestination().isEmpty()) {
+	                    String arcString = a.getSource() + "-" + a.getDestination() + "(" + a.getValuation() + ")";
+	                    if (!addedArcs.contains(arcString)) {
+	                        sb.append(arcString).append(", ");
+	                        addedArcs.add(arcString);
+	                    }
+	                    if (a.getValuation() > 0) {
+	                        positiveVertices.add(a.getDestination());
+	                    }
+	                }
+	            }
+	        }
+	    }
+
 	    for (Arc a : arcsTrie) {
 	        if (!a.getDestination().isEmpty()) {
-	            sb.append(a.getSource()).append("-").append(a.getDestination()).append("(").append(a.getValuation()).append("), ");
+	            positiveVertices.remove(a.getDestination());
 	        }
-	        if (a.getValuation() == -1) {
-	            sb.append(a.getSource()).append(": ");
+	    }
+
+	    for (String vertex : positiveVertices) {
+	        String isolatedVertex = vertex + ":";
+	        if (!addedArcs.contains(isolatedVertex)) {
+	            sb.append(isolatedVertex).append(", ");
+	            addedArcs.add(isolatedVertex);
 	        }
 	    }
 
@@ -166,5 +206,12 @@ public class GrapheLArcs implements IGraphe {
 	    return sb.toString();
 	}
 
-
+	private boolean hasArcWithPositiveValuation(String source) {
+	    for (Arc a : arcs) {
+	        if (a.getSource().equals(source) && a.getValuation() > 0) {
+	            return true;
+	        }
+	    }
+	    return false;
+	}
 }

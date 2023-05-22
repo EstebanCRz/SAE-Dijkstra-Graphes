@@ -1,12 +1,15 @@
 package graphe.implems;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import graphe.core.Arc;
 import graphe.core.IGraphe;
@@ -37,7 +40,7 @@ public class GrapheLAdj implements IGraphe {
 			lAdj.put(lettreDep, new ArrayList<>());
 			List<Arc> SArcs = new ArrayList<>(); // contiendra tous les arcs partant du sommet en cours d'étude
 			for (Arc arc: arcs) {
-				if (arc.getSource() == lettreDep)
+				if (arc.getSource().equals(lettreDep))
 					SArcs.add(arc);
 			}
 			if(!SArcs.isEmpty())
@@ -51,7 +54,8 @@ public class GrapheLAdj implements IGraphe {
 		List<String> sommets = new ArrayList<>();
 		for( Entry<String, List<Arc>> map: lAdj.entrySet()) {
 			String sommet = map.getKey();
-			sommets.add(sommet);
+			if (sommet != "")
+				sommets.add(sommet);
 		}
 		return sommets;
 	}
@@ -62,9 +66,11 @@ public class GrapheLAdj implements IGraphe {
 	    if (contientSommet(sommet)) {
 	        List<Arc> arcs = lAdj.get(sommet);
 	        for (Arc arc : arcs) {
-	            succ.add(arc.getDestination());
+	        	if(arc.getDestination() != "")
+	        		succ.add(arc.getDestination());
 	        }
 	    }
+	    succ = succ.stream().distinct().collect(Collectors.toList());
 	    return succ;
 	}
 
@@ -89,7 +95,7 @@ public class GrapheLAdj implements IGraphe {
 	public boolean contientArc(String src, String dest) {
 		List<Arc> arcs = lAdj.get(src);
         for (Arc arc : arcs) {
-        	if (arc.getSource() == src && arc.getDestination() == dest)
+        	if (arc.getSource().equals(src) && arc.getDestination().equals(dest))
         		return true;
         }
 		return false;
@@ -108,15 +114,21 @@ public class GrapheLAdj implements IGraphe {
 
 	@Override
 	public void ajouterArc(String source, String destination, Integer valeur) {
-		if (contientSommet(source) && contientSommet(destination)) {
+		if (contientSommet(source)) {
 			if(contientArc(source, destination))
-				throw new IllegalStateException("L'arc existe déjà dans le graphe."); 
+				throw new IllegalArgumentException("L'arc existe déjà dans le graphe."); 
+			else if (valeur == -1)
+				throw new IllegalArgumentException("L'arc ne peut pas avoir de valuation négative.");
 			else {
 				lAdj.get(source).add(new Arc(source, destination, valeur));
 			}
 		}
 		else
-			throw new IllegalArgumentException("Le sommet source ou destination n'existe pas dans le graphe.");
+			if(valeur == -1)
+				throw new IllegalArgumentException("L'arc ne peut pas avoir de valuation négative.");
+			ajouterSommet(source);
+			ajouterSommet(destination);
+			lAdj.get(source).add(new Arc(source, destination, valeur));
 	}
 
 	@Override
@@ -141,7 +153,7 @@ public class GrapheLAdj implements IGraphe {
 	public void oterArc(String source, String destination) {
 		if(contientSommet(source) && contientSommet(destination)) {
 			if (!contientSommet(source))
-		    	throw new IllegalStateException("L'arc n'existe pas dans le graphe.");
+		    	throw new IllegalArgumentException("L'arc n'existe pas dans le graphe.");
 		    else {
 			    List<Arc> arcs = lAdj.get(source);
 		        for (Arc arc : arcs) {
@@ -154,6 +166,58 @@ public class GrapheLAdj implements IGraphe {
 		}
 		else
 			throw new IllegalArgumentException("Le sommet source ou destination n'existe pas dans le graphe.");
+	}
+	
+	public String toString() {
+	    StringBuilder sb = new StringBuilder();
+	    List<String> sortedKeys = new ArrayList<>(lAdj.keySet());
+	    Collections.sort(sortedKeys);
+
+	    Set<String> addedArcs = new HashSet<>();
+	    Set<String> positiveVertices = new HashSet<>();
+
+	    // Collect positive vertices
+	    for (String key : sortedKeys) {
+	        List<Arc> arcs = lAdj.get(key);
+	        if (arcs != null && !arcs.isEmpty()) {
+	            for (Arc a : arcs) {
+	                if (a.getValuation() > 0) {
+	                    positiveVertices.add(a.getDestination());
+	                }
+	            }
+	        }
+	    }
+
+	    for (String key : sortedKeys) {
+	        List<Arc> arcs = lAdj.get(key);
+	        if (arcs != null && !arcs.isEmpty()) {
+	            Collections.sort(arcs, Comparator.comparing(Arc::getDestination));
+	            for (Arc a : arcs) {
+	                if (!a.getSource().isEmpty() && a.getValuation() != 0) {
+	                    String arcString = a.getSource() + "-" + a.getDestination() + "(" + a.getValuation() + ")";
+	                    if (!addedArcs.contains(arcString)) {
+	                        sb.append(arcString).append(", ");
+	                        addedArcs.add(arcString);
+	                    }
+	                }
+	            }
+	        }
+	    }
+
+	    for (String vertex : sortedKeys) {
+	    	if (vertex != "") {
+		        if (!positiveVertices.contains(vertex) && !addedArcs.contains(vertex + ":")) {
+		            sb.append(vertex).append(":, ");
+		            addedArcs.add(vertex + ":");
+		        }
+	    	}
+	    }
+
+	    if (sb.length() > 0) {
+	        sb.setLength(sb.length() - 2);
+	    }
+
+	    return sb.toString();
 	}
 
 }
