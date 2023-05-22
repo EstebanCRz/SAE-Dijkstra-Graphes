@@ -1,5 +1,7 @@
 package Djikstra;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 
@@ -21,17 +23,32 @@ public class Dijkstra {
 	        String sommetCourant = queue.poll();
 
 	        // Parcours des voisins du sommet courant
-	        for (String voisin : g.getSucc(sommetCourant)) {
+	        List<String> succ = new ArrayList<>(g.getSucc(sommetCourant));
+	        for (String successeur : succ) {
+	        	if (successeur.equals(null))
+	        		succ.remove(successeur);
+	        }
+	        for (String voisin : succ) {
 	            int distance = dist.get(sommetCourant) + g.getValuation(sommetCourant, voisin);
-
-	            // Mise à jour de la distance si une distance plus courte est trouvée
-	            if (distance < dist.get(voisin)) {
+	            Integer distanceVoisin = dist.get(voisin);
+	            if (distanceVoisin == null || distance < distanceVoisin.intValue()) {
 	                dist.put(voisin, distance);
 	                prev.put(voisin, sommetCourant);
 	                queue.offer(voisin);
 	            }
 	        }
+
 	    }
+	}
+	
+	public long performances(IGrapheConst g, String source, Map<String, Integer> dist, Map<String, String> prev) {
+		long debut = System.currentTimeMillis();
+		
+		dijkstra(g, source, dist, prev);
+		
+		long fin = System.currentTimeMillis();
+        long duree = fin - debut;
+        return duree;
 	}
 	
 }
