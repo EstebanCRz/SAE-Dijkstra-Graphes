@@ -160,26 +160,26 @@ public class GrapheLArcs implements IGraphe {
 	    List<Arc> arcsTrie = new ArrayList<>(arcs);
 	    arcsTrie.sort(Comparator.comparing(Arc::getSource).thenComparing(Arc::getDestination));
 
-	    Set<String> addedArcs = new HashSet<>();
-	    Set<String> positiveVertices = new HashSet<>();
+	    Set<String> arcsAjoutés = new HashSet<>();
+	    Set<String> valuationPositive = new HashSet<>();
 
 	    for (Arc a : arcsTrie) {
 	        if (!a.getSource().isEmpty()) {
 	            if (a.getValuation() == 0 && !hasArcWithPositiveValuation(a.getSource())) {
-	                String isolatedVertex = a.getSource() + ":";
-	                if (!addedArcs.contains(isolatedVertex)) {
-	                    sb.append(isolatedVertex).append(", ");
-	                    addedArcs.add(isolatedVertex);
+	                String sommetIsolé = a.getSource() + ":";
+	                if (!arcsAjoutés.contains(sommetIsolé)) {
+	                    sb.append(sommetIsolé).append(", ");
+	                    arcsAjoutés.add(sommetIsolé);
 	                }
 	            } else {
 	                if (!a.getDestination().isEmpty()) {
 	                    String arcString = a.getSource() + "-" + a.getDestination() + "(" + a.getValuation() + ")";
-	                    if (!addedArcs.contains(arcString)) {
+	                    if (!arcsAjoutés.contains(arcString)) {
 	                        sb.append(arcString).append(", ");
-	                        addedArcs.add(arcString);
+	                        arcsAjoutés.add(arcString);
 	                    }
 	                    if (a.getValuation() > 0) {
-	                        positiveVertices.add(a.getDestination());
+	                    	valuationPositive.add(a.getDestination());
 	                    }
 	                }
 	            }
@@ -188,15 +188,15 @@ public class GrapheLArcs implements IGraphe {
 
 	    for (Arc a : arcsTrie) {
 	        if (!a.getDestination().isEmpty()) {
-	            positiveVertices.remove(a.getDestination());
+	        	valuationPositive.remove(a.getDestination());
 	        }
 	    }
 
-	    for (String vertex : positiveVertices) {
-	        String isolatedVertex = vertex + ":";
-	        if (!addedArcs.contains(isolatedVertex)) {
-	            sb.append(isolatedVertex).append(", ");
-	            addedArcs.add(isolatedVertex);
+	    for (String nomSommet : valuationPositive) {
+	        String sommetIsolé = nomSommet + ":";
+	        if (!arcsAjoutés.contains(sommetIsolé)) {
+	            sb.append(sommetIsolé).append(", ");
+	            arcsAjoutés.add(sommetIsolé);
 	        }
 	    }
 

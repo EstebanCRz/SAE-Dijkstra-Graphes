@@ -152,12 +152,12 @@ public class GrapheHHAdj implements IGraphe {
 	
 	public String toString() {
 	    StringBuilder sb = new StringBuilder();
-	    Set<String> addedArcs = new HashSet<>();
+	    Set<String> arcsAjouté = new HashSet<>();
 
-	    List<String> sortedVertices = new ArrayList<>(hhadj.keySet());
-	    Collections.sort(sortedVertices);
+	    List<String> arcsSortants = new ArrayList<>(hhadj.keySet());
+	    Collections.sort(arcsSortants);
 
-	    for (String src : sortedVertices) {
+	    for (String src : arcsSortants) {
 	        boolean estIsolé = true; // Variable pour vérifier si le sommet est isolé
 	        Map<String, Integer> adj = hhadj.get(src);
 	        if (adj != null) {
@@ -166,9 +166,9 @@ public class GrapheHHAdj implements IGraphe {
 	                int val = entry.getValue();
 	                if (val != 0) {
 	                    String arcString = src + "-" + dest + "(" + val + ")";
-	                    if (!addedArcs.contains(arcString)) {
+	                    if (!arcsAjouté.contains(arcString)) {
 	                        sb.append(arcString).append(", ");
-	                        addedArcs.add(arcString);
+	                        arcsAjouté.add(arcString);
 	                        estIsolé = false;
 	                    }
 	                }

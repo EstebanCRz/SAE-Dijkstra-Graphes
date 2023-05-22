@@ -170,14 +170,13 @@ public class GrapheLAdj implements IGraphe {
 	
 	public String toString() {
 	    StringBuilder sb = new StringBuilder();
-	    List<String> sortedKeys = new ArrayList<>(lAdj.keySet());
-	    Collections.sort(sortedKeys);
+	    List<String> cléTriées = new ArrayList<>(lAdj.keySet());
+	    Collections.sort(cléTriées);
 
-	    Set<String> addedArcs = new HashSet<>();
+	    Set<String> listeArcs = new HashSet<>();
 	    Set<String> positiveVertices = new HashSet<>();
 
-	    // Collect positive vertices
-	    for (String key : sortedKeys) {
+	    for (String key : cléTriées) {
 	        List<Arc> arcs = lAdj.get(key);
 	        if (arcs != null && !arcs.isEmpty()) {
 	            for (Arc a : arcs) {
@@ -188,27 +187,27 @@ public class GrapheLAdj implements IGraphe {
 	        }
 	    }
 
-	    for (String key : sortedKeys) {
+	    for (String key : cléTriées) {
 	        List<Arc> arcs = lAdj.get(key);
 	        if (arcs != null && !arcs.isEmpty()) {
 	            Collections.sort(arcs, Comparator.comparing(Arc::getDestination));
 	            for (Arc a : arcs) {
 	                if (!a.getSource().isEmpty() && a.getValuation() != 0) {
 	                    String arcString = a.getSource() + "-" + a.getDestination() + "(" + a.getValuation() + ")";
-	                    if (!addedArcs.contains(arcString)) {
+	                    if (!listeArcs.contains(arcString)) {
 	                        sb.append(arcString).append(", ");
-	                        addedArcs.add(arcString);
+	                        listeArcs.add(arcString);
 	                    }
 	                }
 	            }
 	        }
 	    }
 
-	    for (String vertex : sortedKeys) {
+	    for (String vertex : cléTriées) {
 	    	if (vertex != "") {
-		        if (!positiveVertices.contains(vertex) && !addedArcs.contains(vertex + ":")) {
+		        if (!positiveVertices.contains(vertex) && !listeArcs.contains(vertex + ":")) {
 		            sb.append(vertex).append(":, ");
-		            addedArcs.add(vertex + ":");
+		            listeArcs.add(vertex + ":");
 		        }
 	    	}
 	    }

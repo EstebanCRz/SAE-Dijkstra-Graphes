@@ -37,18 +37,7 @@ public class Dijkstra {
 	                queue.offer(voisin);
 	            }
 	        }
-
 	    }
-	}
-	
-	public long performances(IGrapheConst g, String source, Map<String, Integer> dist, Map<String, String> prev) {
-		long debut = System.currentTimeMillis();
-		
-		dijkstra(g, source, dist, prev);
-		
-		long fin = System.currentTimeMillis();
-        long duree = fin - debut;
-        return duree;
 	}
 	
 }

@@ -213,34 +213,33 @@ public class GrapheMAdj implements IGraphe{
 	    List<String> sommetSortant = getSommets();
 	    Collections.sort(sommetSortant);
 
-	    Set<String> addedArcs = new HashSet<>();
-	    Set<String> positiveVertices = new HashSet<>();
+	    Set<String> arcsAjoutés = new HashSet<>();
+	    Set<String> valuationPositives = new HashSet<>();
 
 	    for (String src : sommetSortant) {
 	        boolean estIsole = true; // Variable pour vérifier si le sommet est isolé
-	        boolean hasSource = false; // Variable pour vérifier si le sommet a une source
+	        boolean aUneSource = false; // Variable pour vérifier si le sommet a une source
 	        for (String dest : sommetSortant) {
 	            int val = getValuation(src, dest);
 	            if (val != -1) {
 	                String arcString = src + "-" + dest + "(" + val + ")";
 	                sb.append(arcString).append(", ");
-	                addedArcs.add(arcString);
+	                arcsAjoutés.add(arcString);
 	                estIsole = false;
 	                if (val > 0) {
-	                    positiveVertices.add(dest);
+	                	valuationPositives.add(dest);
 	                }
-	                hasSource = true;
+	                aUneSource = true;
 	            }
 	        }
-	        if (estIsole && hasSource) {
+	        if (estIsole && aUneSource) {
 	            sb.append(src).append(":, ");
 	        }
 	    }
 
-	    // Check for isolated vertices without successors and no positive arcs
-	    for (String vertex : sommetSortant) {
-	        if (!positiveVertices.contains(vertex) && !addedArcs.contains(vertex + ":")) {
-	            sb.append(vertex).append(":, ");
+	    for (String sommet : sommetSortant) {
+	        if (!valuationPositives.contains(sommet) && !arcsAjoutés.contains(sommet + ":")) {
+	            sb.append(sommet).append(":, ");
 	        }
 	    }
 
