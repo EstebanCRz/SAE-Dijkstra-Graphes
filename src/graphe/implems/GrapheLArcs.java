@@ -1,6 +1,7 @@
 package graphe.implems;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,8 +28,10 @@ public class GrapheLArcs implements IGraphe {
 		List<String> sommets = new ArrayList<>();
 		if (!arcs.isEmpty()) {
 			for(Arc s: arcs) {
-				sommets.add(s.getSource());
-				sommets.add(s.getDestination());
+				if(s.getSource() != "")
+					sommets.add(s.getSource());
+				if(s.getDestination() != "")
+					sommets.add(s.getDestination());
 			}
 			sommets = sommets.stream().distinct().collect(Collectors.toList()); // retire les doublons de la liste	
 		}
@@ -40,7 +43,7 @@ public class GrapheLArcs implements IGraphe {
 		List<String> succ = new ArrayList<>();
 		if(!arcs.isEmpty()) {
 			for(Arc a: arcs) {
-				if (a.getSource() == sommet) {
+				if (a.getSource().equals(sommet) && a.getDestination() != "") {
 					succ.add(a.getDestination());
 				}
 			}
@@ -52,7 +55,7 @@ public class GrapheLArcs implements IGraphe {
 	public int getValuation(String src, String dest) {
 		int val = -1;
 		for(Arc a: arcs) {
-			if (a.getSource() == src && a.getDestination() == dest) {
+			if (a.getSource().equals(src) && a.getDestination().equals(dest)) {
 				val = a.getValuation();
 				break;
 			}
@@ -62,23 +65,21 @@ public class GrapheLArcs implements IGraphe {
 
 	@Override
 	public boolean contientSommet(String sommet) {
-		for(Arc a: arcs) {
-			if (a.getSource() == sommet || a.getDestination() == sommet) {
-				return true;
-			}
-		}
-		return false;
+	    List<String> sommets = getSommets();
+	    return sommets.contains(sommet);
 	}
+
 
 	@Override
 	public boolean contientArc(String src, String dest) {
-		for(Arc a: arcs) {
-			if (a.getSource() == src && a.getDestination() == dest) {
-				return true;
-			}
-		}
-		return false;
+	    for (Arc a : arcs) {
+	        if (a.getSource().equals(src) && a.getDestination().equals(dest)) {
+	            return true;
+	        }
+	    }
+	    return false;
 	}
+
 
 	@Override
 	public void ajouterSommet(String noeud) {
@@ -96,8 +97,12 @@ public class GrapheLArcs implements IGraphe {
 			if(this.contientArc(source, destination)) {
 				throw new IllegalStateException("L'arc existe déjà dans le graphe.");
 			}
+			else if(valeur == -1){
+				throw new IllegalArgumentException("L'arc ne peut pas avoir de valuation négative.");
+			}
 			else {
-				arcs.add(new Arc(source, destination, valeur));
+				arcs.removeIf(a -> a.getSource().equals(source) && a.getValuation() == -1);
+	            arcs.add(new Arc(source, destination, valeur));
 			}
 		}
 		else
@@ -129,7 +134,7 @@ public class GrapheLArcs implements IGraphe {
 			}
 			else {
 				for(Arc a: arcs) {
-					if(a.getSource() == source && a.getDestination() == destination) {
+					if(a.getSource().equals(source) && a.getDestination().equals(destination)) {
 						arcs.remove(a);
 						break;
 					}
@@ -140,4 +145,26 @@ public class GrapheLArcs implements IGraphe {
 			throw new IllegalArgumentException("Le sommet source ou destination n'existe pas dans le graphe.");
 	}
 	
+	@Override
+	public String toString() {
+	    StringBuilder sb = new StringBuilder();
+	    List<Arc> arcsTrie = new ArrayList<>(arcs);
+	    arcsTrie.sort(Comparator.comparing(Arc::getSource).thenComparing(Arc::getDestination));
+
+	    for (Arc a : arcsTrie) {
+	        if (!a.getDestination().isEmpty()) {
+	            sb.append(a.getSource()).append("-").append(a.getDestination()).append("(").append(a.getValuation()).append("), ");
+	        }
+	        if (a.getValuation() == -1) {
+	            sb.append(a.getSource()).append(": ");
+	        }
+	    }
+
+	    if (sb.length() > 0) {
+	        sb.setLength(sb.length() - 2);
+	    }
+	    return sb.toString();
+	}
+
+
 }
