@@ -5,6 +5,9 @@ import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Scanner;
 
+import graphe.core.Arc;
+import graphe.core.IGraphe;
+
 public class GraphImporter {
 	public static int importerReponse(String filePath, List<Integer> chemin) throws FileNotFoundException {
 		File file = new File(filePath);
